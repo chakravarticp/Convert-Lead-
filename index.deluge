@@ -1,0 +1,37 @@
+string updatecrm(string id)
+{
+resp = zoho.crm.searchRecords("Leads","(Email:equals:" + id + ")");
+lead_id = resp.getJSON("id");
+company_name = resp.getJSON("Company");
+first_name = resp.getJSON("First_Name");
+last_name = resp.getJSON("Last_Name");
+//info lead_id;
+// create accounts
+mpp = Map();
+mpp.put("Account_Name",company_name);
+optional_mpp = Map();
+repp = zoho.crm.createRecord("Accounts",mpp,optional_mpp,"zcrm");
+acc_id = repp.getJSON("id");
+//info "Accounts--" + acc_id;
+// create contact
+mp = Map();
+mp.put("Last_Name",last_name);
+mp.put("First_Name",first_name);
+mp.put("Account_Name",acc_id);
+contact = zoho.crm.convertLead(lead_id,mp,"zcrm");
+contact_id = contact.getJSON("Contacts");
+// info "Contact ID --- " + contact_id;
+// info "Contact ----- " + contact;
+//  response = zoho.crm.convertLead(2303XXXXXXXXXXXXXXX,{"Deals":deal_values});
+// // create deal 
+deal_name = "100" + " " + last_name;
+cp = Map();
+cp.put("Deal_Name",deal_name);
+cp.put("Account_Name",acc_id);
+cp.put("Contact_Name",contact_id);
+cp.put("Type","New Business");
+cp.put("Stage","Qualification");
+cp.put("Closing_Date",zoho.currentdate.addDay(5));
+deal_resp = zoho.crm.createRecord("Deals",cp,optional_mpp,"zcrm");
+return deal_resp;
+}
